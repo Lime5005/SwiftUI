@@ -10,14 +10,14 @@ import SwiftUI
 // Using @State and $ sign for two-way binding
 struct ContentView: View {
     @State private var totalAmount = ""
-    @State private var totalPerson = 2
+    @State private var totalPerson = ""
     @State private var tipPercentage = 2
     let tipPercentages = [10, 15, 20, 25, 0]
     
     // a computed property:
     var totalAmountByPerson: Double {
         // totalPerson counts from 0 in the array from 0 to 99
-        let personCount = Double(totalPerson + 2) //this is to match the 4 in the 2 ..< 100
+        let personCount = Double(totalPerson) ?? 2 //this is to match the 4 in the 2 ..< 100
         let tipSelected = Double(tipPercentages[tipPercentage])
         let totalToPay = Double(totalAmount) ?? 0
         
@@ -29,6 +29,15 @@ struct ContentView: View {
         return totalAmountByPerson
     }
     
+    var totalToPay: Double {
+        let tipsAmount = Double(tipPercentages[tipPercentage])
+        let totalPayment = Double(totalAmount) ?? 0
+        
+        let totalToPay = totalPayment + totalPayment * (tipsAmount / 100)
+        
+        return totalToPay
+    }
+    
     
     var body: some View {
         NavigationView {
@@ -36,12 +45,14 @@ struct ContentView: View {
                 Section {
                     TextField("Enter the amout:", text: $totalAmount)
                         .keyboardType(.decimalPad)
-                    Picker("Number of people:", selection: $totalPerson) {
-                        ForEach(2 ..< 100) {
-                            Text("\($0) people")
-                            //here shows 4 people because totalPerson = 2, and it's the [2] in the array(2 ..< 100)
-                        }
-                    }
+                    TextField("Enter how many people: default is 2", text: $totalPerson)
+                        .keyboardType(.decimalPad)
+//                    Picker("Number of people:", selection: $totalPerson) {
+//                        ForEach(2 ..< 100) {
+//                            Text("\($0) people")
+//                            //here shows 4 people because totalPerson = 2, and it's the [2] in the array(2 ..< 100)
+//                        }
+//                    }
                 }
                 Section(header: Text("How much tips do you leave?")) {
                     Picker("Tip percentage:", selection: $tipPercentage) {
@@ -53,7 +64,11 @@ struct ContentView: View {
                     .pickerStyle(SegmentedPickerStyle())
                 }
                 
-                Section {
+                Section(header: Text("Total amount to pay:")) {
+                    Text("\(totalToPay, specifier: "%.2f")")
+                }
+                
+                Section(header: Text("Amount per person:")) {
                     Text("$\(totalAmountByPerson, specifier: "%.2f")")
                 }
             }.navigationBarTitle("WeSplit")
